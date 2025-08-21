@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, main2 ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            pyproject.toml
+            requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install ruff black mypy pytest pytest-cov
+      - name: Lint
+        run: |
+          black --check .
+          ruff check .
+      - name: Type check (mypy)
+        run: |
+          mypy aiwand
+      - name: Tests with coverage (Windows)
+        run: |
+          pytest -p pytest_cov -rA -vv `
+            --cov=aiwand `
+            --cov-report=term-missing `
+            --cov-report=xml `
+            --cov-fail-under=80 `
+            --junitxml=pytest-results.xml
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-windows-py3.11
+          path: pytest-results.xml
+          if-no-files-found: ignore
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-windows-py3.11
+          path: coverage.xml
+          if-no-files-found: ignore

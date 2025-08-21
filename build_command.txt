@@ -1,0 +1,1 @@
+nuitka main.py --standalone --onefile --enable-plugin=pyqt5 --windows-disable-console --windows-icon-from-ico=icon.ico --include-data-file=.env=.env --include-data-file=icon.ico=icon.ico --include-module=pyttsx3.drivers --include-module=pyttsx3.drivers.sapi5 --nofollow-import-to=tkinter --output-dir=dist --assume-yes-for-downloads --remove-output

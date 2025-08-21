@@ -1,0 +1,33 @@
+🪄 AI Wand – Quick Start (Windows)
+
+AI Wand enhances your desktop with AI-powered define/rewrite/summarize/translate and text‑to‑speech.
+
+Setup (Developer build)
+1) Install Python 3.9+ and create a venv
+   - py -m venv .venv
+   - .venv\Scripts\activate
+2) Install dependencies
+   - pip install -e .
+   - pip install ruff black mypy pytest pytest-cov
+3) (Optional) Configure API key
+   - copy .env.example to .env and add GEMINI_API_KEY
+
+Run
+- python main.py
+
+Headless Tests
+- PowerShell:
+  $env:QT_QPA_PLATFORM='offscreen'; $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; pytest -rA -vv
+
+Basic Controls
+- Activate/Deactivate: Ctrl + Shift + A
+- Show Toolbar: Double-press Right Ctrl
+- Select text in any app, then use the floating toolbar
+
+Tray Menu
+- Right-click the system tray icon to Show Window, Toggle Activation, or Quit
+
+Notes
+- Right Ctrl double-press is required
+- Internet required for AI features
+- Set GEMINI_API_KEY to enable AI operations

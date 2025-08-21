@@ -1,0 +1,18 @@
+[run]
+omit =
+    aiwand/app_main.py
+    aiwand/app.py
+    aiwand/agents/*
+    aiwand/core/text_selector.py
+    aiwand/services/tts.py
+    aiwand/ui/main_window.py
+    aiwand/ui/components.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.
+    @abstractmethod
+    raise NotImplementedError
+    pass
+show_missing = True

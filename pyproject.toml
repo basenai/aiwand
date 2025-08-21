@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aiwand"
+version = "0.3.0"
+description = "AI Wand is a smart assistant for reading, summarizing, translating, and voice playback right on your screen."
+authors = [{ name = "AI Wand" }]
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["PyQt5", "desktop", "AI", "assistant"]
+
+dependencies = [
+    # Use the official wheel across platforms to avoid building from source in CI
+    "PyQt5==5.15.11",
+    "python-dotenv>=1.0",
+    "pyperclip>=1.8",
+    "pynput>=1.7",
+    "pyttsx3>=2.90",
+    "openai>=1.30.0",
+    "openai-agents>=0.2.8",
+    "pywin32>=306; platform_system == 'Windows'",
+]
+
+[project.scripts]
+aiwand = "aiwand.app:main"
+
+[project.urls]
+Homepage = "https://aiwand.vercel.app/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aiwand"]
+
+[tool.black]
+target-version = ["py39"]
+line-length = 100
+
+[tool.mypy]
+# Limit scope to our package to avoid scanning the whole venv when CI passes '.'
+files = ["aiwand"]
+python_version = "3.9"
+ignore_missing_imports = true
+check_untyped_defs = true
+follow_imports = "skip"
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["aiwand"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+exclude = [
+  ".venv",
+  "build",
+  "dist",
+  "docs/assets",
+]
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E203", "E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["aiwand"]
+
+[tool.ruff.format]
+quote-style = "preserve"
+indent-style = "space"
+line-ending = "auto"
+
+

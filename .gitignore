@@ -1,0 +1,44 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# PyInstaller
+*.spec
+
+# Local settings
+settings.json
+
+# Ruff
+.ruff_cache
+
+# Pytest
+.pytest_cache
+
+# MyPy
+.mypy_cache
+
+# Pytest
+pytest-results.xml
