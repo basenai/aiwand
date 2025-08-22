@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aiwand"
-version = "0.3.0"
+version = "0.1.0"
 description = "AI Wand is a smart assistant for reading, summarizing, translating, and voice playback right on your screen."
 authors = [{ name = "AI Wand" }]
 readme = "README.md"

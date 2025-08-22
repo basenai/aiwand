@@ -10,7 +10,7 @@ resolution-markers = [
 
 [[package]]
 name = "aiwand"
-version = "0.3.0"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "openai" },
