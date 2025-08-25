@@ -23,10 +23,10 @@ class Config:
     """Application configuration"""
 
     API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    MODEL_NAME: str = "gemini-1.5-flash"
-    BASE_URL: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    MODEL_NAME: str = os.getenv("MODEL_NAME", "gemini-1.5-flash")
+    BASE_URL: str = os.getenv("BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 
-    MAX_DEFINITION_LENGTH: int = 150
+    MAX_DEFINITION_LENGTH: int = int(os.getenv("MAX_DEFINITION_LENGTH", 50))
     POPUP_WIDTH: int = 400
     COPY_ATTEMPTS: int = 3
     COPY_DELAY: float = 0.1
@@ -66,7 +66,51 @@ class Config:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Config":
-        return cls(**data)
+        # Normalize keys (case-insensitive) and support legacy spellings
+        normalized = {k.lower(): v for k, v in data.items()}
+        aliases = {
+            "max_definition_length": "MAX_DEFINITION_LENGTH",
+            "maxdefinitionlength": "MAX_DEFINITION_LENGTH",
+            "max_definition_len": "MAX_DEFINITION_LENGTH",
+        }
+
+        resolved: dict[str, Any] = {}
+        for field, typ in cls.__annotations__.items():
+            key_lower = field.lower()
+            val = None
+            if key_lower in normalized:
+                val = normalized[key_lower]
+            else:
+                # Try alias
+                for alias_lower, target in aliases.items():
+                    if target == field and alias_lower in normalized:
+                        val = normalized[alias_lower]
+                        break
+            if val is not None:
+                try:
+                    if typ is int:
+                        resolved[field] = int(val)
+                    elif typ is float:
+                        resolved[field] = float(val)
+                    elif typ is str:
+                        resolved[field] = str(val)
+                    else:
+                        resolved[field] = val
+                except Exception:
+                    resolved[field] = val
+
+        return cls(**resolved)
+
+    def __post_init__(self):
+        # Defensive type coercion for runtime-created instances
+        try:
+            self.MAX_DEFINITION_LENGTH = int(self.MAX_DEFINITION_LENGTH)
+            self.POPUP_WIDTH = int(self.POPUP_WIDTH)
+            self.COPY_ATTEMPTS = int(self.COPY_ATTEMPTS)
+            self.COPY_DELAY = float(self.COPY_DELAY)
+            self.FONT_SIZE = int(self.FONT_SIZE)
+        except Exception:
+            pass
 
     def save(self, file_path: str) -> None:
         with open(file_path, "w", encoding="utf-8") as f:

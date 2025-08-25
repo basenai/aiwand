@@ -42,14 +42,15 @@ class MainWindow(_QMainWindow):
 
     def __init__(self, config: Config, aiwand_instance=None):
         # Determine config path based on execution environment
-        if getattr(sys, 'frozen', False):
-            bundle_dir = os.path.dirname(sys.executable)
-            self.config_path = os.path.join(bundle_dir, self.CONFIG_FILE)
+        if aiwand_instance is not None and hasattr(aiwand_instance, 'config_path'):
+            self.config_path = aiwand_instance.config_path
         else:
-            self.config_path = self.CONFIG_FILE
+            if getattr(sys, 'frozen', False):
+                bundle_dir = os.path.dirname(sys.executable)
+                self.config_path = os.path.join(bundle_dir, self.CONFIG_FILE)
+            else:
+                self.config_path = self.CONFIG_FILE
 
-        # Load config from file, or use default if not found
-        config = Config.load(self.config_path)
         super().__init__()
         self.config = config
         self.aiwand = aiwand_instance
@@ -345,16 +346,33 @@ class MainWindow(_QMainWindow):
         self.api_key_input = QtWidgets.QLineEdit(self.config.API_KEY)
         self.api_key_input.setEchoMode(QtWidgets.QLineEdit.Password)
         self.api_key_input.setPlaceholderText("Enter your API key")
-        form_layout.addRow("API Key:", self.api_key_input)
+        self.api_key_input.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         # Show/Hide button for API key
         api_key_layout = QHBoxLayout()
+        api_key_layout.setContentsMargins(0, 0, 0, 0)
+        api_key_layout.setSpacing(8)
         api_key_layout.addWidget(self.api_key_input)
         show_button = QPushButton("Show")
         show_button.setCheckable(True)
-        show_button.setFixedWidth(60)
+        show_button.setFixedWidth(70)
+        show_button.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
+        show_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #F0F0F0;
+                color: #333;
+                border: 1px solid #CFCFCF;
+                border-radius: 6px;
+                padding: 4px 8px;
+            }
+            QPushButton:hover { background-color: #E8E8E8; }
+            QPushButton:pressed { background-color: #E0E0E0; }
+            """
+        )
         show_button.toggled.connect(lambda checked: self._toggle_api_key_visibility(checked))
         api_key_layout.addWidget(show_button)
+        api_key_layout.setStretch(0, 1)  # Line edit grows, button stays visible
         form_layout.addRow("API Key:", api_key_layout)
 
         # Base URL
@@ -369,11 +387,49 @@ class MainWindow(_QMainWindow):
 
         # Max Definition Length
         self.max_def_length = QtWidgets.QSpinBox()
-        self.max_def_length.setMinimum(50)
-        self.max_def_length.setMaximum(500)
+        self.max_def_length.setMinimum(10)
+        self.max_def_length.setMaximum(150)
         self.max_def_length.setValue(self.config.MAX_DEFINITION_LENGTH)
         self.max_def_length.setSingleStep(10)
-        form_layout.addRow("Max Definition Length:", self.max_def_length)
+        self.max_def_length.setStyleSheet(
+            f"""
+            QSpinBox {{
+                min-height: 28px;
+                padding-right: 26px; /* space for buttons */
+                background-color: {self.config.CARD_BACKGROUND};
+                border: 1px solid #CFCFCF;
+                border-radius: 6px;
+            }}
+            QSpinBox:focus {{
+                border: 1px solid {self.config.SECONDARY_COLOR};
+            }}
+            QSpinBox::down-button {{
+                subcontrol-origin: border;
+                width: 20px;
+                background: #F0F0F0;
+                border-left: 1px solid #CFCFCF;
+            }}
+            QSpinBox::up-button {{
+                subcontrol-origin: border;
+                width: 20px;
+                background: #F0F0F6;
+                border-left: 1px solid #CFCFCF;
+            }}
+            QSpinBox::up-button {{
+                border-top-right-radius: 6px;
+            }}
+            QSpinBox::down-button {{
+                border-bottom-right-radius: 6px;
+            }}
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
+                background: #E8E8E8;
+            }}
+            QSpinBox::up-arrow, QSpinBox::down-arrow {{
+                width: 10px; height: 10px;
+            }}
+            """
+        )
+        form_layout.addRow("Max Definition Length (10-150):", self.max_def_length)
 
         # Add note about settings
         note_label = QLabel("Changes will take effect after saving.")
@@ -715,23 +771,8 @@ class MainWindow(_QMainWindow):
 
         # Apply theme immediately to the main window
         if self.aiwand:
-            # Create a copy of the current config
-            updated_config = Config()
-
-            # Copy existing config values
-            for attr in dir(self.config):
-                if not attr.startswith('__') and not callable(getattr(self.config, attr)):
-                    setattr(updated_config, attr, getattr(self.config, attr))
-
-            # Update color values
-            updated_config.PRIMARY_COLOR = self.selected_color_primary
-            updated_config.SECONDARY_COLOR = self.selected_color_secondary
-            updated_config.BACKGROUND_COLOR = self.selected_color_background
-            updated_config.CARD_BACKGROUND = self.selected_color_card
-
-            # Update the config in the main app
-            self.config = updated_config
-            self.aiwand.config = updated_config
+            # Ensure running app uses updated config instance before reinit
+            self.aiwand.config = self.config
 
             # Apply changes immediately
             self._apply_current_theme()
@@ -801,8 +842,9 @@ class MainWindow(_QMainWindow):
         self.config.MODEL_NAME = self.model_name_input.text()
         self.config.BASE_URL = self.base_url_input.text()
         self.config.MAX_DEFINITION_LENGTH = self.max_def_length.value()
-        self.config.save(self.config_path)
-        self.logger.info(f"LLM settings saved to {self.config_path}")
+        save_path = self.aiwand.config_path if self.aiwand and hasattr(self.aiwand, 'config_path') else self.config_path
+        self.config.save(save_path)
+        self.logger.info(f"LLM settings saved to {save_path}")
 
         # Save API key to .env file for persistence across updates
         try:
@@ -816,6 +858,8 @@ class MainWindow(_QMainWindow):
             self.logger.error(f"Failed to save API key to .env file: {e}")
 
         if self.aiwand:
+            # Ensure running app uses updated config instance before reinit
+            self.aiwand.config = self.config
             self.aiwand._reinitialize_agents()
 
         QtWidgets.QMessageBox.information(self, "Success", "LLM settings saved successfully you might need to restart the application for changes to take effect!")
@@ -1079,27 +1123,18 @@ class MainWindow(_QMainWindow):
     def _apply_ui_changes(self):
         """Apply UI customization changes immediately"""
         if self.aiwand:
-            # Create a copy of the current config
-            updated_config = Config()
-
-            # Copy existing config values
-            for attr in dir(self.config):
-                if not attr.startswith('__') and not callable(getattr(self.config, attr)):
-                    setattr(updated_config, attr, getattr(self.config, attr))
-
-            # Update color values
-            updated_config.PRIMARY_COLOR = self.selected_color_primary
-            updated_config.SECONDARY_COLOR = self.selected_color_secondary
-            updated_config.BACKGROUND_COLOR = self.selected_color_background
-            updated_config.CARD_BACKGROUND = self.selected_color_card
+            # Mutate the existing config to avoid resetting defaults
+            self.config.PRIMARY_COLOR = self.selected_color_primary
+            self.config.SECONDARY_COLOR = self.selected_color_secondary
+            self.config.BACKGROUND_COLOR = self.selected_color_background
+            self.config.CARD_BACKGROUND = self.selected_color_card
 
             # Update font settings
-            updated_config.FONT_FAMILY = self.font_family.currentFont().family()
-            updated_config.FONT_SIZE = self.font_size.value()
+            self.config.FONT_FAMILY = self.font_family.currentFont().family()
+            self.config.FONT_SIZE = self.font_size.value()
 
-            # Update the config in the main app
-            self.config = updated_config
-            self.aiwand.config = updated_config
+            # Propagate to main app
+            self.aiwand.config = self.config
 
             # Apply changes immediately
             self._apply_current_theme()

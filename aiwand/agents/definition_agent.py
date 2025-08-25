@@ -76,7 +76,12 @@ class DefinitionAgent:
                 """,
             )
 
-            self.logger.info("AI agent initialized successfully")
+            self.logger.info(
+                "AI agent initialized successfully (model=%s, base_url=%s, max_def_len=%s)",
+                self.config.MODEL_NAME,
+                self.config.BASE_URL,
+                self.config.MAX_DEFINITION_LENGTH,
+            )
 
         except Exception as e:
             self.logger.warning(f"Failed to initialize AI agent: {e}")

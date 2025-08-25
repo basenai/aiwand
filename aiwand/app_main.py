@@ -23,7 +23,14 @@ class AIWand:
     """Main application class with enhanced error handling and maintainability"""
 
     def __init__(self):
-        self.config = Config()
+        # Determine config path and load a single shared Config instance
+        if getattr(sys, 'frozen', False):
+            bundle_dir = os.path.dirname(sys.executable)
+            self.config_path = os.path.join(bundle_dir, MainWindow.CONFIG_FILE)
+        else:
+            self.config_path = MainWindow.CONFIG_FILE
+
+        self.config = Config.load(self.config_path)
 
         # Initialize Qt application first
         self._initialize_qt_app()
@@ -100,6 +107,7 @@ class AIWand:
         self.signals = SignalEmitter()
 
         # Create UI components
+        # Pass the SAME config instance to every component
         self.main_window = MainWindow(self.config, self)
         self.popup = AIWandPopup(self.config, self)  # Pass AIWand instance to popup
         self.toolbar = AIToolbar(self.config)
@@ -605,7 +613,7 @@ class AIWand:
                 pass
 
             # Ensure visibility again after the event loop starts
-            QtCore.QTimer.singleShot(150, self._ensure_window_visible)
+            QtCore.QTimer.singleShot(50, self._ensure_window_visible)
             return self.app.exec_()
         except KeyboardInterrupt:
             self.logger.info("Application interrupted by user")
