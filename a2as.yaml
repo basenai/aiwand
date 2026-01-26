@@ -1,0 +1,503 @@
+manifest:
+  version: "0.1.2"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: basenai/aiwand
+    source: https://github.com/basenai/aiwand
+    branch: main
+    commit: "6f889f18"
+    scope: [aiwand/agents/definition_agent.py, aiwand/agents/rewrite_agent.py, aiwand/agents/summarize_agent.py, aiwand/agents/translate_agent.py,
+      aiwand/app_main.py, aiwand/config.py, aiwand/ui/toolbar.py]
+  issued:
+    by: A2AS.org
+    at: '2026-01-26T16:14:40Z'
+  signatures:
+    digest: sha256:DX3s3cBfHiQDq6JzGnqtWNDRfxOv2KHTcy5A5xGY-x0
+    key: ed25519:ek5CJDjLzSegdCLVCfgBDppZPWKbgzXmrBArcGGD7Tg
+    sig: ed25519:PwJl4m0w5tWfl0bxQ5QYPZKZe3iGtH4_B58uo7vhQBiwgqcbTEovqLj-cDSEBD5a-mvywl2a2yGkvlNluzPYAA
+
+agents:
+  agent.DefinitionAgent.agent:
+    type: class
+    models: [model]
+    params:
+      class: DefinitionAgent
+      name: DefinitionAgent
+      instructions: ['You are a helpful assistant that provides clear, concise definitions.', 'Rules:', '1. Provide simple,
+          accurate definitions', '2. Keep responses under {self.config.MAX_DEFINITION_LENGTH} words', 3. Use simple language
+          that anyone can understand, '4. If the text is unclear or not a word/phrase, explain what it appears to be', '5.
+          Always provide a response, even for unclear input']
+  agent.RewriteAgent.agent:
+    type: class
+    models: [model]
+    params:
+      class: RewriteAgent
+      name: RewriteAgent
+      instructions: [You are a helpful assistant that rewrites text in different styles., 'Rules:', 1. Rewrite the given text
+          in the requested style, 2. Maintain the original meaning, 3. Keep approximately the same length, 4. Be creative
+          but clear, '5. When a style is very different from the original tone, ensure it''s still appropriate', 'Style Definitions:',
+        '- Simple: Rewrite in clear, short sentences. Avoid complex words. Keep it very easy to understand.', '- Technical:
+          Rewrite to sound precise, specialized, and suitable for technical audiences.', '- Professional: Rewrite to sound
+          polished, businesslike, and corporate.', '- Formal: Rewrite in a respectful, serious tone, avoiding contractions
+          and casual language.', '- Normal: Rewrite in a neutral, balanced style without any strong tone.', '- Common: Rewrite
+          using everyday language that most people use in daily conversation.', '- Grammar Fix: Correct grammar, spelling,
+          punctuation, and clarity without changing the tone or meaning.']
+  agent.SummarizeAgent.agent:
+    type: class
+    models: [model]
+    params:
+      class: SummarizeAgent
+      name: SummarizeAgent
+      instructions: ['You are a helpful assistant that provides high-quality, concise summaries of text.', 'Rules for summarizing:',
+        '1. Create a powerful, concise summary that covers all key points', 2. Maintain the original meaning and important
+          details, 3. Organize information logically and clearly, '4. Highlight the most important concepts, findings, or
+          arguments', 5. Remove redundancy and unnecessary details, 6. Keep the summary between 15-25% of the original length,
+        '7. For very short texts, provide a more condensed version that captures the essence']
+  agent.TranslateAgent.agent:
+    type: class
+    models: [model]
+    params:
+      class: TranslateAgent
+      name: TranslateAgent
+      instructions: ['You are a professional translator that provides accurate, high-quality translations between languages.',
+        'Rules for translation:', 1. Translate the text accurately while preserving the original meaning, '2. Maintain the
+          tone, style, and formality of the original text', '3. Preserve formatting, punctuation, and special characters when
+          appropriate', '4. Handle idioms, cultural references, and specialized terminology correctly', '5. If a term has
+          no direct translation, provide the most appropriate equivalent', '6. For ambiguous terms, select the translation
+          that best fits the context', 7. Ensure the translation is natural and fluent in the target language, '8. Do not
+          add, remove, or modify content beyond what''s necessary for translation', 'Output Format:', '- Provide ONLY the
+          translation in the target language''s native script', '- Follow this with a romanized version (transliteration)
+          on a new line', '- Do not include any explanations, notes, headers, or other text', '- Do not include labels like
+          "Translation:" or "Romanized:"', '- Just output the translation followed by the romanization']
+
+models:
+  model:
+    type: variable
+    agents: [agent.TranslateAgent.agent, agent.DefinitionAgent.agent, agent.RewriteAgent.agent, agent.SummarizeAgent.agent]
+
+imports:
+  _agents_mod: agents
+  _AsyncOpenAI_t: openai.AsyncOpenAI
+  _sys: sys
+  Agent: agents.Agent
+  AIToolbar: aiwand.ui.toolbar.AIToolbar
+  AIWand: aiwand.app_main.AIWand
+  AIWandPopup: aiwand.ui.popup.AIWandPopup
+  Any: typing.Any
+  AppState: aiwand.app_state.AppState
+  asyncio: asyncio
+  AsyncOpenAI: openai.AsyncOpenAI
+  Callable: typing.Callable
+  cast: typing.cast
+  Config: aiwand.config.Config
+  dataclass: dataclasses.dataclass
+  DefinitionAgent: definition_agent.DefinitionAgent
+  dotenv: dotenv
+  GlobalEventFilter: aiwand.ui.toolbar.GlobalEventFilter
+  GlobalHotKeys: pynput.keyboard.GlobalHotKeys
+  json: json
+  keyboard: pynput.keyboard
+  Logger: aiwand.logging_util.Logger
+  logging: logging
+  MainWindow: aiwand.ui.main_window.MainWindow
+  mouse: pynput.mouse
+  OpenAIChatCompletionsModel: agents.OpenAIChatCompletionsModel
+  Optional: typing.Optional
+  os: os
+  QApplication: PyQt5.QtWidgets.QApplication
+  QFont: PyQt5.QtGui.QFont
+  QHBoxLayout: PyQt5.QtWidgets.QHBoxLayout
+  QLabel: PyQt5.QtWidgets.QLabel
+  QMessageBox: PyQt5.QtWidgets.QMessageBox
+  QPushButton: PyQt5.QtWidgets.QPushButton
+  Qt: PyQt5.QtCore.Qt
+  QtCore: PyQt5.QtCore
+  QtGui: PyQt5.QtGui
+  QTimer: PyQt5.QtCore.QTimer
+  QtWidgets: PyQt5.QtWidgets
+  QVBoxLayout: PyQt5.QtWidgets.QVBoxLayout
+  QWidget: PyQt5.QtWidgets.QWidget
+  RewriteAgent: rewrite_agent.RewriteAgent
+  RoundedWidget: aiwand.ui.widgets.RoundedWidget
+  Runner: agents.Runner
+  SignalEmitter: aiwand.signals.SignalEmitter
+  SingleClickComboBox: toolbar.SingleClickComboBox
+  SummarizeAgent: summarize_agent.SummarizeAgent
+  sys: sys
+  TextSelector: aiwand.core.TextSelector
+  TextToSpeech: aiwand.services.TextToSpeech
+  threading: threading
+  time: time
+  TranslateAgent: translate_agent.TranslateAgent
+  TYPE_CHECKING: typing.TYPE_CHECKING
+  UIComponents: components.UIComponents
+
+functions:
+  __init__:
+    type: sync
+    module: aiwand.agents.summarize_agent
+    args: [self, config]
+  __post_init__:
+    type: sync
+    module: aiwand.config
+    args: [self]
+  _cleanup:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _connect_signals:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _create_feature_button:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, text, tooltip, callback]
+  _ensure_gui_platform:
+    type: sync
+    module: aiwand.app
+  _ensure_window_visible:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _get_definition_thread:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, x, y]
+  _get_rewrite_thread:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, style, x, y]
+  _get_summary_thread:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, x, y]
+  _get_translation_thread:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, source_lang, target_lang, x, y]
+  _handle_define_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text]
+  _handle_rewrite_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, style]
+  _handle_speak_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text]
+  _handle_summarize_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text]
+  _handle_translate_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, source_lang, target_lang]
+  _handler:
+    type: sync
+    module: aiwand.app
+    args: [mode, context, message]
+  _initialize_agent:
+    type: sync
+    module: aiwand.agents.summarize_agent
+    args: [self]
+  _initialize_components:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _initialize_qt_app:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _install_qt_message_handler:
+    type: sync
+    module: aiwand.app
+  _listen_again_clicked:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _on_define_clicked:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _on_language_selected:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, index]
+  _on_mouse_click:
+    type: sync
+    module: aiwand.app_main
+    args: [self, x, y, button, pressed]
+  _on_press:
+    type: sync
+    module: aiwand.app_main
+    args: [self, key]
+  _on_rewrite_clicked:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _on_speak_clicked:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _on_speech_complete:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _on_style_selected:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, index]
+  _on_summarize_clicked:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _on_translate_clicked:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _print_usage_info:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _reinitialize_agents:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _rewrite_text:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, style]
+  _setup_animation:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _setup_hotkeys:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _setup_keyboard_listener:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _setup_mouse_listener:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _setup_ui:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _show_api_key_dialog:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  _show_main_window_tab:
+    type: sync
+    module: aiwand.app_main
+    args: [self, tab_index]
+  _speak_text:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text]
+  _summarize_text:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text]
+  _translate_text:
+    type: sync
+    module: aiwand.app_main
+    args: [self, text, source_lang, target_lang]
+  _update_fade:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  _validate_config:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+    params:
+      returns: bool
+  create_qapplication:
+    type: sync
+    module: aiwand.app
+    args: [existing_app]
+    params:
+      returns: QApplication
+  define:
+    type: sync
+    module: aiwand.agents.definition_agent
+    args: [self, text]
+    params:
+      returns: str
+  define_async:
+    type: async
+    module: aiwand.agents.definition_agent
+    args: [self, text]
+    params:
+      returns: str
+  eventFilter:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, obj, event]
+  from_dict:
+    type: sync
+    module: aiwand.config
+    args: [cls, data]
+    params:
+      returns: Config
+  hide:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  hidePopup:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  is_available:
+    type: sync
+    module: aiwand.agents.summarize_agent
+    args: [self]
+    params:
+      returns: bool
+  load:
+    type: sync
+    module: aiwand.config
+    args: [cls, file_path]
+    params:
+      returns: Config
+  main:
+    type: sync
+    module: aiwand.app
+    params:
+      returns: int
+  mousePressEvent:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, event]
+  process_selected_text:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  rewrite:
+    type: sync
+    module: aiwand.agents.rewrite_agent
+    args: [self, text, style]
+    params:
+      returns: str
+  rewrite_async:
+    type: async
+    module: aiwand.agents.rewrite_agent
+    args: [self, text, style]
+    params:
+      returns: str
+  run:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+    params:
+      returns: int
+  save:
+    type: sync
+    module: aiwand.config
+    args: [self, file_path]
+    params:
+      returns: None
+  set_tracing_disabled:
+    type: sync
+    module: aiwand.agents.summarize_agent
+    args: [_flag]
+    params:
+      returns: None
+  show_toolbar:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self, text, x, y]
+  showPopup:
+    type: sync
+    module: aiwand.ui.toolbar
+    args: [self]
+  summarize:
+    type: sync
+    module: aiwand.agents.summarize_agent
+    args: [self, text]
+    params:
+      returns: str
+  summarize_async:
+    type: async
+    module: aiwand.agents.summarize_agent
+    args: [self, text]
+    params:
+      returns: str
+  to_dict:
+    type: sync
+    module: aiwand.config
+    args: [self]
+    params:
+      returns: dict
+  toggle_activation:
+    type: sync
+    module: aiwand.app_main
+    args: [self]
+  translate:
+    type: sync
+    module: aiwand.agents.translate_agent
+    args: [self, text, source_lang, target_lang]
+    params:
+      returns: str
+  translate_async:
+    type: async
+    module: aiwand.agents.translate_agent
+    args: [self, text, source_lang, target_lang]
+    params:
+      returns: str
+
+variables:
+  BASE_URL:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [_dotenv_path]
+  GEMINI_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [_dotenv_path]
+  MAX_DEFINITION_LENGTH:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [_dotenv_path]
+  MODEL_NAME:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [_dotenv_path]
+  QT_QPA_PLATFORM:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [_dotenv_path]
+
+files:
+  .env:
+    type: literal
+    actions: [read]
+    params:
+      caller: [os.path.join]
+      path: [_bundle_dir]
+  file_path:
+    type: variable
+    actions: [write, read]
+    params:
+      caller: [open, os.path.exists, json.load]
+      alias: [f]
+  settings.json:
+    type: literal
+    actions: [read]
+    params:
+      caller: [os.path.join, Config.load]
+      path: [bundle_dir]
